@@ -42,6 +42,15 @@ function main(){
         topRight.style.transform = `translate3d(${w}px, 0, 0)`
         bottomRight.style.transform = `translate3d(${w}px, ${h}px, 0)`
         bottomLeft.style.transform = `translate3d(0, ${h}px, 0)`
+
+        topLeft.dataset.x = 0
+        topLeft.dataset.y = 0
+        topRight.dataset.x = w
+        topRight.dataset.y = 0
+        bottomRight.dataset.x = w
+        bottomRight.dataset.y = h
+        bottomLeft.dataset.x = 0
+        bottomLeft.dataset.y = h
     }
     img.src = tempImage
     polygon.setAttribute('points', '0,0 100,10 100,80 20,300')
@@ -77,20 +86,27 @@ function main(){
 
     canvasContainer.addEventListener('mousemove', e => {
         e.preventDefault()
-        const pos = 'translate3d(' + (e.clientX  - canvasRect.left) + 'px, ' + (e.clientY - canvasRect.top) + 'px, 0)'
+        const x = e.clientX  - canvasRect.left + window.scrollX
+        const y = e.clientY - canvasRect.top + window.scrollY
+        const pos = `translate3d(${x}px, ${y}px, 0)`
         if (tlMove) {
             topLeft.style.transform = pos
+            topLeft.dataset.x = x
+            topLeft.dataset.y = y
             //updateQuad(polygon, e.clientX, e.clientY)
-        }
-        if (trMove) {
+        } else if (trMove) {
             topRight.style.transform = pos
-        }
-        if (brMove) {
+            topRight.dataset.x = x
+            topRight.dataset.y = y
+        } else if (brMove) {
             bottomRight.style.transform = pos
+            bottomRight.dataset.x = x
+            bottomRight.dataset.y = y
             //updateQuad(polygon, e.clientX, e.clientY)
-        }
-        if (blMove) {
+        } else if (blMove) {
             bottomLeft.style.transform = pos
+            bottomLeft.dataset.x = x
+            bottomLeft.dataset.y = y
             //updateQuad(polygon, e.clientX, e.clientY)
         }
     })
@@ -101,11 +117,8 @@ function main(){
         blMove = false
         brMove = false
 
-        tl = topLeft.getBoundingClientRect()
-        tr = topRight.getBoundingClientRect()
-        br = bottomRight.getBoundingClientRect()
-        bl = bottomLeft.getBoundingClientRect()
-        setTransformationCanvas(ctx, tcCtx, ~~canvas.width, ~~canvas.height, ~~transformationCanvas.width, [tl.left, tl.top], [tr.left, tr.top], [br.left, br.top], [bl.left, bl.top])
+        setTransformationCanvas(ctx, tcCtx, ~~canvas.width, ~~canvas.height, ~~transformationCanvas.width,
+            [+topLeft.dataset.x, +topLeft.dataset.y], [+topRight.dataset.x, +topRight.dataset.y], [+bottomRight.dataset.x, +bottomRight.dataset.y], [+bottomLeft.dataset.x, +bottomLeft.dataset.y])
     })
 
     function handleImage(e){
@@ -163,9 +176,10 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
                 const si = xy2i(~~sx, ~~sy, srcWidth)
                 const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
                 const avg = (r + g + b) / 3
-                destImageData.data[i + 0] = avg
-                destImageData.data[i + 1] = avg
-                destImageData.data[i + 2] = avg
+                const value = avg < 128 ? 0 : 255
+                destImageData.data[i + 0] = avg //value
+                destImageData.data[i + 1] = avg //value
+                destImageData.data[i + 2] = avg //value
                 destImageData.data[i + 3] = a
             } else {
                 destImageData.data[i + 0] = 0  // R value
