@@ -25,7 +25,6 @@ function main(){
     const img = new Image()
     img.onload = () => {
         const [w, h] = scale(img.width, img.height, 600)
-        console.log(w, h)
         canvas.width = w
         canvas.height = h
         canvas.style.width = svg.style.width = `${w}px`
@@ -37,12 +36,12 @@ function main(){
         transformationCanvas.style.width = `${w}px`
         transformationCanvas.style.height =`${w}px`
 
-        setTransformationCanvas(ctx, tcCtx, ~~w, ~~h, ~~w, 0, 0, 0, 0)
+        //setTransformationCanvas(ctx, tcCtx, ~~w, ~~h, ~~w, [0, 0], [w, 0], [w, h], [0, h])
 
         topLeft.style.transform =  'translate3d(0, 0, 0)'
         topRight.style.transform = `translate3d(${w}px, 0, 0)`
-        bottomLeft.style.transform = `translate3d(${w}px, ${h}px, 0)`
-        bottomRight.style.transform = `translate3d(0, ${h}px, 0)`
+        bottomRight.style.transform = `translate3d(${w}px, ${h}px, 0)`
+        bottomLeft.style.transform = `translate3d(0, ${h}px, 0)`
     }
     img.src = tempImage
     polygon.setAttribute('points', '0,0 100,10 100,80 20,300')
@@ -101,6 +100,12 @@ function main(){
         trMove = false
         blMove = false
         brMove = false
+
+        tl = topLeft.getBoundingClientRect()
+        tr = topRight.getBoundingClientRect()
+        br = bottomRight.getBoundingClientRect()
+        bl = bottomLeft.getBoundingClientRect()
+        setTransformationCanvas(ctx, tcCtx, ~~canvas.width, ~~canvas.height, ~~transformationCanvas.width, [tl.left, tl.top], [tr.left, tr.top], [br.left, br.top], [bl.left, bl.top])
     })
 
     function handleImage(e){
@@ -118,8 +123,8 @@ function main(){
 
                 topLeft.style.transform =  'translate3d(0, 0, 0)'
                 topRight.style.transform = `translate3d(${w}px, 0, 0)`
-                bottomLeft.style.transform = `translate3d(${w}px, ${h}px, 0)`
-                bottomRight.style.transform = `translate3d(0, ${h}px, 0)`
+                bottomRight.style.transform = `translate3d(${w}px, ${h}px, 0)`
+                bottomLeft.style.transform = `translate3d(0, ${h}px, 0)`
             }
             img.src = event.target.result
             polygon.setAttribute('points', '0,0 100,10 100,80 20,300')
@@ -143,34 +148,18 @@ function xy2i(x, y, width) {
 }
 
 
-function xsetTransformationCanvas(srcCtx, ctx, srcWidth, srcHeight, destSize, topLeftCoord, topRightCoord, bottomRightCoor, bottomLeftCoord) {
-    const imageData = ctx.createImageData(destSize, destSize)
-
-    // Iterate through every pixel
-    for (let x = 0; x < destSize; x += 1) {
-        for (let y = 0; y < destSize; y += 1) {
-            const i = xy2i(x, y, destSize)
-            imageData.data[i + 0] = 190;  // R value
-            imageData.data[i + 1] = 0;    // G value
-            imageData.data[i + 2] = 210;  // B value
-            imageData.data[i + 3] = 255;  // A value
-        }
-    }
-
-    // Draw image data to the canvas
-    ctx.putImageData(imageData, 0, 0)
-}
-
 function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize, topLeftCoord, topRightCoord, bottomRightCoor, bottomLeftCoord) {
     const srcImageData = srcCtx.getImageData(0, 0, srcWidth, srcHeight)
     const destImageData = destCtx.createImageData(destSize, destSize)
+
+    const centerPoint = lineIntersect(topLeftCoord, bottomRightCoor, topRightCoord, bottomLeftCoord)
 
     for (let x = 0; x < destSize; x += 1) {
         for (let y = 0; y < destSize; y += 1) {
             const i = xy2i(x, y, destSize)
             if (x > y && destSize - x > y) {
                 [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [0, 0], [destSize, 0])
-                const [sx, sy] = pp2xy(p2e, pae, [srcWidth / 2, srcHeight / 2], [0, 0], [srcWidth, 0])
+                const [sx, sy] = pp2xy(p2e, pae, centerPoint, topLeftCoord, topRightCoord)
                 const si = xy2i(~~sx, ~~sy, srcWidth)
                 const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
                 const avg = (r + g + b) / 3
