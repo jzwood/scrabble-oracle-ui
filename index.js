@@ -181,6 +181,39 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
                 destImageData.data[i + 1] = avg //value
                 destImageData.data[i + 2] = avg //value
                 destImageData.data[i + 3] = a
+            } else if (x > y && destSize - x < y) {
+                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [destSize, 0], [destSize, destSize])
+                const [sx, sy] = pp2xy(p2e, pae, centerPoint, topRightCoord, bottomRightCoor)
+                const si = xy2i(~~sx, ~~sy, srcWidth)
+                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
+                const avg = (r + g + b) / 3
+                const value = avg < 128 ? 0 : 255
+                destImageData.data[i + 0] = avg //value
+                destImageData.data[i + 1] = avg //value
+                destImageData.data[i + 2] = avg //value
+                destImageData.data[i + 3] = a
+            } else if (x < y && destSize - x < y) {
+                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [destSize, destSize], [0, destSize])
+                const [sx, sy] = pp2xy(p2e, pae, centerPoint, bottomRightCoor, bottomLeftCoord)
+                const si = xy2i(~~sx, ~~sy, srcWidth)
+                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
+                const avg = (r + g + b) / 3
+                const value = avg < 128 ? 0 : 255
+                destImageData.data[i + 0] = avg //value
+                destImageData.data[i + 1] = avg //value
+                destImageData.data[i + 2] = avg //value
+                destImageData.data[i + 3] = a
+            } else if (x < y && destSize - x > y) {
+                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [0, destSize], [0, 0])
+                const [sx, sy] = pp2xy(p2e, pae, centerPoint, bottomLeftCoord, topLeftCoord)
+                const si = xy2i(~~sx, ~~sy, srcWidth)
+                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
+                const avg = (r + g + b) / 3
+                const value = avg < 128 ? 0 : 255
+                destImageData.data[i + 0] = avg //value
+                destImageData.data[i + 1] = avg //value
+                destImageData.data[i + 2] = avg //value
+                destImageData.data[i + 3] = a
             } else {
                 destImageData.data[i + 0] = 0  // R value
                 destImageData.data[i + 1] = 255    // G value
