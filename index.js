@@ -1,8 +1,12 @@
-ready(main)
+import { calculateHomography } from 'simple-homography'
+import { multiply } from 'mathjs'
+import { tempImage } from './temp_image'
+
 let tlMove = false
 let trMove = false
 let blMove = false
 let brMove = false
+ready(main)
 
 function ready(fn) {
     document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn)
@@ -165,61 +169,33 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
     const srcImageData = srcCtx.getImageData(0, 0, srcWidth, srcHeight)
     const destImageData = destCtx.createImageData(destSize, destSize)
 
-    const centerPoint = lineIntersect(topLeftCoord, bottomRightCoor, topRightCoord, bottomLeftCoord)
+    const A1 = [0, 0]
+    const A2 = [0, destSize]
+    const A3 = [destSize, destSize]
+    const A4 = [destSize, 0]
+
+    const B1 = topLeftCoord
+    const B2 = topRightCoord
+    const B3 = bottomRightCoor
+    const B4 = bottomLeftCoord
+
+    const homography = calculateHomography(A1, B1, A2, B2, A3, B3, A4, B4)
 
     for (let x = 0; x < destSize; x += 1) {
         for (let y = 0; y < destSize; y += 1) {
             const i = xy2i(x, y, destSize)
-            if (x > y && destSize - x > y) {
-                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [0, 0], [destSize, 0])
-                const [sx, sy] = pp2xy(p2e, pae, centerPoint, topLeftCoord, topRightCoord)
-                const si = xy2i(~~sx, ~~sy, srcWidth)
-                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
-                const avg = (r + g + b) / 3
-                const value = avg < 128 ? 0 : 255
-                destImageData.data[i + 0] = avg //value
-                destImageData.data[i + 1] = avg //value
-                destImageData.data[i + 2] = avg //value
-                destImageData.data[i + 3] = a
-            } else if (x > y && destSize - x < y) {
-                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [destSize, 0], [destSize, destSize])
-                const [sx, sy] = pp2xy(p2e, pae, centerPoint, topRightCoord, bottomRightCoor)
-                const si = xy2i(~~sx, ~~sy, srcWidth)
-                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
-                const avg = (r + g + b) / 3
-                const value = avg < 128 ? 0 : 255
-                destImageData.data[i + 0] = avg //value
-                destImageData.data[i + 1] = avg //value
-                destImageData.data[i + 2] = avg //value
-                destImageData.data[i + 3] = a
-            } else if (x < y && destSize - x < y) {
-                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [destSize, destSize], [0, destSize])
-                const [sx, sy] = pp2xy(p2e, pae, centerPoint, bottomRightCoor, bottomLeftCoord)
-                const si = xy2i(~~sx, ~~sy, srcWidth)
-                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
-                const avg = (r + g + b) / 3
-                const value = avg < 128 ? 0 : 255
-                destImageData.data[i + 0] = avg //value
-                destImageData.data[i + 1] = avg //value
-                destImageData.data[i + 2] = avg //value
-                destImageData.data[i + 3] = a
-            } else if (x < y && destSize - x > y) {
-                [p2e, pae] = xy2pp([x, y], [destSize / 2, destSize / 2], [0, destSize], [0, 0])
-                const [sx, sy] = pp2xy(p2e, pae, centerPoint, bottomLeftCoord, topLeftCoord)
-                const si = xy2i(~~sx, ~~sy, srcWidth)
-                const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
-                const avg = (r + g + b) / 3
-                const value = avg < 128 ? 0 : 255
-                destImageData.data[i + 0] = avg //value
-                destImageData.data[i + 1] = avg //value
-                destImageData.data[i + 2] = avg //value
-                destImageData.data[i + 3] = a
-            } else {
-                destImageData.data[i + 0] = 0  // R value
-                destImageData.data[i + 1] = 255    // G value
-                destImageData.data[i + 2] = 0  // B value
-                destImageData.data[i + 3] = 255  // A value
-            }
+            const A = [x, y, 1]
+            let B = multiply(homography, A)._data
+            const sx = B[0] / B[2]
+            const sy = B[1] / B[2]
+            //console.log(sx, sy)
+            const si = xy2i(~~sx, ~~sy, srcWidth)
+            const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
+            const avg = (r + g + b) / 3
+            destImageData.data[i + 0] = avg
+            destImageData.data[i + 1] = avg
+            destImageData.data[i + 2] = avg
+            destImageData.data[i + 3] = a
         }
     }
 

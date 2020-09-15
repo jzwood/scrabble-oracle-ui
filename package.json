@@ -1,0 +1,16 @@
+{
+  "name": "scrabble-oracle-ui",
+  "version": "1.0.0",
+  "description": "what is the optimal scrabble play",
+  "main": "index.js",
+  "repository": "git@github.com:jzwood/scrabble-oracle-ui.git",
+  "author": "Jake Wood <jakew@captricity.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mathjs": "^7.2.0",
+    "simple-homography": "^1.0.2"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10"
+  }
+}
