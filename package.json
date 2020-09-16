@@ -8,9 +8,11 @@
   "license": "MIT",
   "dependencies": {
     "mathjs": "^7.2.0",
-    "simple-homography": "^1.0.2"
+    "simple-homography": "^1.0.2",
+    "tesseract.js": "^2.0.0-beta.2"
   },
   "devDependencies": {
-    "cssnano": "^4.1.10"
+    "cssnano": "^4.1.10",
+    "sass": "^1.26.10"
   }
 }

@@ -1,0 +1,69 @@
+html, body, main {
+  padding: 0;
+  margin: 0;
+}
+
+h1 {
+  margin-top: 10px;
+}
+
+main {
+  padding: 0 15px;
+  margin: 0;
+  font-family: courier;
+}
+
+nav {
+
+  ul.steps {
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 0;
+    padding: 0;
+  }
+
+  li.step {
+    height: 25px;
+    width: 200px;
+    list-style: none;
+    padding: 10px 5px 5px 5px;
+    white-space: nowrap;
+
+    &.active {
+    }
+  }
+
+}
+
+.marker {
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  border-radius: 50%;
+  z-index: 1;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &.clicked:hover {
+    cursor: grab;
+  }
+}
+
+.canvas-container {
+  position: relative;
+}
+
+.canvas {
+  display: block;
+}
+
+.quad {
+  position: absolute;
+}

@@ -1,6 +1,7 @@
 import { calculateHomography } from 'simple-homography'
 import { multiply } from 'mathjs'
-import { tempImage } from './temp_image'
+import { demoImage } from './demoImage'
+import Tesseract from 'tesseract.js'
 
 let tlMove = false
 let trMove = false
@@ -56,7 +57,7 @@ function main(){
         bottomLeft.dataset.x = 0
         bottomLeft.dataset.y = h
     }
-    img.src = tempImage
+    img.src = demoImage
     polygon.setAttribute('points', '0,0 100,10 100,80 20,300')
     // ABOVE IS TEMP
 
@@ -183,18 +184,26 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
 
     for (let x = 0; x < destSize; x += 1) {
         for (let y = 0; y < destSize; y += 1) {
-            const i = xy2i(x, y, destSize)
             const A = [x, y, 1]
             let B = multiply(homography, A)._data
             const sx = B[0] / B[2]
             const sy = B[1] / B[2]
-            //console.log(sx, sy)
             const si = xy2i(~~sx, ~~sy, srcWidth)
             const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
             const avg = (r + g + b) / 3
-            destImageData.data[i + 0] = avg
-            destImageData.data[i + 1] = avg
-            destImageData.data[i + 2] = avg
+            const i = xy2i(y, x, destSize)  // switched x and y so it showed up right (:confused shrug:)
+            const value = (() => {
+                if (avg < 85) {
+                    return 0
+                } else if (avg > 170) {
+                    return 170
+                } else {
+                    return avg
+                }
+            })()
+            destImageData.data[i + 0] = value
+            destImageData.data[i + 1] = value
+            destImageData.data[i + 2] = value
             destImageData.data[i + 3] = a
         }
     }
