@@ -40,21 +40,30 @@ function main(){
         transformationCanvas.style.width = `${w}px`
         transformationCanvas.style.height =`${w}px`
 
+        const topLeftX = 173
+        const topLeftY = 77
+        const topRightX = 447
+        const topRightY = 74
+        const bottomRightX = 496
+        const bottomRightY = 336
+        const bottomLeftX = 121
+        const bottomLeftY = 338
+
+        topLeft.style.transform =  `translate3d(${topLeftX}, ${topLeftY}, 0)`
+        topRight.style.transform = `translate3d(${topRightX}px, ${topRightX}, 0)`
+        bottomRight.style.transform = `translate3d(${bottomRightX}px, ${bottomRightY}px, 0)`
+        bottomLeft.style.transform = `translate3d(${bottomLeftX}, ${bottomLeftY}px, 0)`
+
+        topLeft.dataset.x = topLeftX
+        topLeft.dataset.y = topLeftY
+        topRight.dataset.x = topRightX
+        topRight.dataset.y = topRightY
+        bottomRight.dataset.x = bottomRightX
+        bottomRight.dataset.y = bottomRightY
+        bottomLeft.dataset.x = bottomLeftX
+        bottomLeft.dataset.y = bottomLeftY
+
         //setTransformationCanvas(ctx, tcCtx, ~~w, ~~h, ~~w, [0, 0], [w, 0], [w, h], [0, h])
-
-        topLeft.style.transform =  'translate3d(0, 0, 0)'
-        topRight.style.transform = `translate3d(${w}px, 0, 0)`
-        bottomRight.style.transform = `translate3d(${w}px, ${h}px, 0)`
-        bottomLeft.style.transform = `translate3d(0, ${h}px, 0)`
-
-        topLeft.dataset.x = 0
-        topLeft.dataset.y = 0
-        topRight.dataset.x = w
-        topRight.dataset.y = 0
-        bottomRight.dataset.x = w
-        bottomRight.dataset.y = h
-        bottomLeft.dataset.x = 0
-        bottomLeft.dataset.y = h
     }
     img.src = demoImage
     polygon.setAttribute('points', '0,0 100,10 100,80 20,300')
@@ -211,4 +220,12 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
     }
 
     destCtx.putImageData(destImageData, 0, 0)
+}
+
+
+function performOCR(destCtx, destSize) {
+    const tileSize = destSize / 15
+    for (let i=0; i < destSize; i+= 1) {
+
+    }
 }

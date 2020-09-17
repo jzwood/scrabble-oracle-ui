@@ -42,12 +42,22 @@ button {
 
 .canvas-container {
   position: relative;
+
+  .canvas {
+    display: block;
+    background: #ccc;
+  }
+
 }
 
-.canvas {
-  display: block;
-}
 
 .quad {
   position: absolute;
+}
+
+
+.ocr-canvas-container {
+  .ocr-canvas {
+    position: absolute;
+  }
 }
