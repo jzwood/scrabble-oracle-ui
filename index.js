@@ -19,7 +19,6 @@ function main(){
     const polygon = svg.querySelector('polygon')
     const canvasContainer = document.querySelector('.canvas-container')
     const canvas = document.getElementById('canvas')
-    const canvasRect = canvas.getBoundingClientRect()
     const transformationCanvas = document.getElementById('transformation-canvas')
     const ctx = canvas.getContext('2d')
     const tcCtx = transformationCanvas.getContext('2d')
@@ -90,29 +89,32 @@ function main(){
     })
 
     canvasContainer.addEventListener('mousemove', e => {
-        e.preventDefault()
-        const x = e.clientX  - canvasRect.left + window.scrollX
-        const y = e.clientY - canvasRect.top + window.scrollY
-        const pos = `translate3d(${x}px, ${y}px, 0)`
-        if (tlMove) {
-            topLeft.style.transform = pos
-            topLeft.dataset.x = x
-            topLeft.dataset.y = y
-            //updateQuad(polygon, e.clientX, e.clientY)
-        } else if (trMove) {
-            topRight.style.transform = pos
-            topRight.dataset.x = x
-            topRight.dataset.y = y
-        } else if (brMove) {
-            bottomRight.style.transform = pos
-            bottomRight.dataset.x = x
-            bottomRight.dataset.y = y
-            //updateQuad(polygon, e.clientX, e.clientY)
-        } else if (blMove) {
-            bottomLeft.style.transform = pos
-            bottomLeft.dataset.x = x
-            bottomLeft.dataset.y = y
-            //updateQuad(polygon, e.clientX, e.clientY)
+        if (tlMove || trMove || brMove || blMove) {
+            e.preventDefault()
+            const canvasRect = canvas.getBoundingClientRect()
+            const x = e.clientX  - canvasRect.left
+            const y = e.clientY - canvasRect.top
+            const pos = `translate3d(${x}px, ${y}px, 0)`
+            if (tlMove) {
+                topLeft.style.transform = pos
+                topLeft.dataset.x = x
+                topLeft.dataset.y = y
+                //updateQuad(polygon, e.clientX, e.clientY)
+            } else if (trMove) {
+                topRight.style.transform = pos
+                topRight.dataset.x = x
+                topRight.dataset.y = y
+            } else if (brMove) {
+                bottomRight.style.transform = pos
+                bottomRight.dataset.x = x
+                bottomRight.dataset.y = y
+                //updateQuad(polygon, e.clientX, e.clientY)
+            } else if (blMove) {
+                bottomLeft.style.transform = pos
+                bottomLeft.dataset.x = x
+                bottomLeft.dataset.y = y
+                //updateQuad(polygon, e.clientX, e.clientY)
+            }
         }
     })
 

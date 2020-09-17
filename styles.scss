@@ -13,38 +13,22 @@ main {
   font-family: courier;
 }
 
-nav {
+$marker-size: 16px;
 
-  ul.steps {
-    background-color: white;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    margin: 0;
-    padding: 0;
-  }
-
-  li.step {
-    height: 25px;
-    width: 200px;
-    list-style: none;
-    padding: 10px 5px 5px 5px;
-    white-space: nowrap;
-
-    &.active {
-    }
-  }
-
+button {
+  font-family: verdana;
 }
 
 .marker {
-  width: 16px;
-  height: 16px;
-  background-color: white;
+  width: $marker-size;
+  height: $marker-size;
+  background-color: transparent;
   position: absolute;
-  left: -8px;
-  top: -8px;
+  left: -$marker-size / 2;
+  top: -$marker-size / 2;
+  border: 2px solid #00FF00;
   border-radius: 50%;
+  box-sizing: border-box;
   z-index: 1;
 
   &:hover {
