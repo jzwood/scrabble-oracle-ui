@@ -49,10 +49,10 @@ function main(){
         const bottomLeftX = 121
         const bottomLeftY = 338
 
-        topLeft.style.transform =  `translate3d(${topLeftX}, ${topLeftY}, 0)`
-        topRight.style.transform = `translate3d(${topRightX}px, ${topRightX}, 0)`
+        topLeft.style.transform =  `translate3d(${topLeftX}px, ${topLeftY}px, 0)`
+        topRight.style.transform = `translate3d(${topRightX}px, ${topRightY}px, 0)`
         bottomRight.style.transform = `translate3d(${bottomRightX}px, ${bottomRightY}px, 0)`
-        bottomLeft.style.transform = `translate3d(${bottomLeftX}, ${bottomLeftY}px, 0)`
+        bottomLeft.style.transform = `translate3d(${bottomLeftX}px, ${bottomLeftY}px, 0)`
 
         topLeft.dataset.x = topLeftX
         topLeft.dataset.y = topLeftY
@@ -168,12 +168,11 @@ function main(){
 }
 
 function i2xy(i, width) {
-    i /= 4
     return [i % width, ~~ (i / width) ]
 }
 
 function xy2i(x, y, width) {
-    return (x + y * width) * 4
+    return x + y * width
 }
 
 
@@ -192,30 +191,51 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
     const B4 = bottomLeftCoord
 
     const homography = calculateHomography(A1, B1, A2, B2, A3, B3, A4, B4)
+    const numColorChannels = 4
 
-    for (let x = 0; x < destSize; x += 1) {
-        for (let y = 0; y < destSize; y += 1) {
-            const A = [x, y, 1]
-            let B = multiply(homography, A)._data
-            const sx = B[0] / B[2]
-            const sy = B[1] / B[2]
-            const si = xy2i(~~sx, ~~sy, srcWidth)
-            const [r, g, b, a] = srcImageData.data.slice(si, si + 4)
-            const avg = (r + g + b) / 3
-            const i = xy2i(y, x, destSize)  // switched x and y so it showed up right (:confused shrug:)
-            const value = (() => {
-                if (avg < 85) {
-                    return 0
-                } else if (avg > 170) {
-                    return 170
-                } else {
-                    return avg
+    const canvasContainer = document.querySelector('.ocr-canvas-container')
+
+    const tilesPerBoardSide = 15
+    const pixelsPerTileSide = destSize / tilesPerBoardSide
+    for (let tx=0; tx < tilesPerBoardSide; tx +=1) {
+        for (let ty=0; ty < tilesPerBoardSide; ty +=1) {
+            const tile = canvasContainer.querySelector(`.row-${ty + 1}>canvas.col-${tx + 1}`)
+            tile.style.width = `${pixelsPerTileSide}px`
+            tile.style.height = `${pixelsPerTileSide}px`
+            tile.width = pixelsPerTileSide
+            tile.height = pixelsPerTileSide
+            const tileCtx = tile.getContext('2d')
+            const tileImageData = tileCtx.createImageData(pixelsPerTileSide, pixelsPerTileSide)
+            for (let px=0; px < pixelsPerTileSide; px +=1) {
+                for (let py=0; py < pixelsPerTileSide; py +=1) {
+                    // DRAWS HOMOGRAPHICALLY CORRECTED IMAGE TO OUTPUT CANVAS
+                    const x = tx * pixelsPerTileSide + px
+                    const y = ty * pixelsPerTileSide + py
+                    const A = [x, y, 1]
+                    let B = multiply(homography, A)._data
+                    const sx = B[0] / B[2]
+                    const sy = B[1] / B[2]
+                    const si = numColorChannels * xy2i(~~sx, ~~sy, srcWidth)
+                    const [r, g, b, a] = srcImageData.data.slice(si, si + numColorChannels)
+                    const avg = (r + g + b) / 3
+                    const step = 16
+                    const value = step * ~~(avg / step)
+                    const i = numColorChannels * xy2i(x, y, destSize)  // switched x and y so it showed up right (:confused shrug:)
+                    destImageData.data[i + 0] = value
+                    destImageData.data[i + 1] = value
+                    destImageData.data[i + 2] = value
+                    destImageData.data[i + 3] = a
+
+                    // DRAWS HOMOGRAPHICALLY CORRECTED TILE IMAGES TO INDIVIDUAL CANVASES
+                    const ti = numColorChannels * xy2i(px, py, pixelsPerTileSide)
+                    tileImageData.data[ti + 0] = value
+                    tileImageData.data[ti + 1] = value
+                    tileImageData.data[ti + 2] = value
+                    tileImageData.data[ti + 3] = a
+
                 }
-            })()
-            destImageData.data[i + 0] = value
-            destImageData.data[i + 1] = value
-            destImageData.data[i + 2] = value
-            destImageData.data[i + 3] = a
+            }
+            tileCtx.putImageData(tileImageData, 0, 0)
         }
     }
 
@@ -225,7 +245,13 @@ function setTransformationCanvas(srcCtx, destCtx, srcWidth, srcHeight, destSize,
 
 function performOCR(destCtx, destSize) {
     const tileSize = destSize / 15
-    for (let i=0; i < destSize; i+= 1) {
+    const ocrCanvas = document.getElementById('ocr-canvas')
+    const images = Array(15 * 15).fill(0).map((_, i) => {
 
+    })
+    for (let i=0; i < destSize; i+= 1) {
+        const ctx = tile.getContext('2d')
+        const imageData = ctx.getImageData(0, 0, tileSize, tileSize)
+        const destImageData = destCtx.createImageData(destSize, destSize)
     }
 }

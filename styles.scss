@@ -55,9 +55,9 @@ button {
   position: absolute;
 }
 
-
 .ocr-canvas-container {
   .ocr-canvas {
-    position: absolute;
+    width: 0px;
+    height: 0px;
   }
 }
